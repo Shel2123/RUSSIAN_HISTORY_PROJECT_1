@@ -16,4 +16,5 @@ myenv/
 Thumbs.db
 
 # LOCAL 
-src/russian_history_project_1/.env
+src/.env
+*.log
