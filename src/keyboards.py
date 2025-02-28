@@ -20,13 +20,24 @@ def get_main_keyboard():
     ])
 
 def get_months_keyboard(year: int):
-    month_names = [
-        "January", "February", "March", "April",
-        "May", "June", "July", "August",
-        "September", "October", "November", "December"
-    ]
+    if year == 1941:
+        month_names = [
+            "June", "July", "August",
+            "September", "October", "November", "December"
+        ]
+    elif year == 1945:
+        month_names = [
+            "January", "February", "March", "April",
+            "May"
+        ]
+    else:
+        month_names = [
+                "January", "February", "March", "April",
+                "May", "June", "July", "August",
+                "September", "October", "November", "December"
+            ]
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=[])
-    for m in range(1, 13):
+    for m in range(1, len(month_names) + 1):
         btn = types.InlineKeyboardButton(text=month_names[m-1], callback_data=f"month:{year}:{m}")
         keyboard.inline_keyboard.append([btn])
     back_btn = types.InlineKeyboardButton(text="Back", callback_data="back_main")

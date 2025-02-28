@@ -21,7 +21,7 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher()
 
 # Регистрация обработчиков
-register_handlers(dp)
+register_handlers(dp, bot)
 
 async def main():
     logging.info("Bot is starting...")

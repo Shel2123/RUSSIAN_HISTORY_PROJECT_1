@@ -4,7 +4,22 @@ import logging
 from keyboards import get_main_keyboard, get_months_keyboard
 from data_handlers import get_events, get_main_dates, get_sources
 
-def register_handlers(dp: Dispatcher):
+
+last_messages = {}
+
+def register_handlers(dp: Dispatcher, bot):
+    async def send_message_with_deletion(user_id: int, text: str, reply_markup=None):
+        """Отправляет сообщение и удаляет предыдущее, если оно есть."""
+        if user_id in last_messages:
+            try:
+                await bot.delete_message(chat_id=user_id, message_id=last_messages[user_id])
+            except Exception as e:
+                logging.warning(f"Не удалось удалить сообщение: {e}")
+
+        # Отправляем новое сообщение
+        msg = await bot.send_message(user_id, text, reply_markup=reply_markup)
+        last_messages[user_id] = msg.message_id
+    
     # Обработчик команды /start и /help
     async def send_welcome(message: types.Message):
         user = message.from_user
@@ -13,7 +28,7 @@ def register_handlers(dp: Dispatcher):
         welcome_text = (
             f"Hi, {message.from_user.full_name}, I am a telegram bot for studying the chronology of the Great Patriotic War."
         )
-        await message.answer(welcome_text, reply_markup=keyboard)
+        await send_message_with_deletion(user.id, welcome_text, reply_markup=keyboard)
 
     dp.message.register(send_welcome, Command(commands=["start", "help"]))
 
@@ -29,7 +44,7 @@ def register_handlers(dp: Dispatcher):
         year = mapping.get(callback.data)
         logging.info(f"User {callback.from_user.id} ({callback.from_user.full_name}) selected year {year}.")
         months_keyboard = get_months_keyboard(year)
-        await callback.message.answer(f"Select month for {year}:", reply_markup=months_keyboard)
+        await send_message_with_deletion(callback.from_user.id, f"Select month for {year}:", reply_markup=months_keyboard)
         await callback.answer()
 
     dp.callback_query.register(
@@ -62,7 +77,7 @@ def register_handlers(dp: Dispatcher):
             reply_text = f"No events for {month_names[month-1]} {year} in the database."
         back_btn = types.InlineKeyboardButton(text="Back", callback_data=f"back:{year}")
         back_kb = types.InlineKeyboardMarkup(inline_keyboard=[[back_btn]])
-        await callback.message.answer(reply_text, reply_markup=back_kb)
+        await send_message_with_deletion(user.id, reply_text, reply_markup=back_kb)
         await callback.answer()
 
     dp.callback_query.register(
@@ -82,7 +97,7 @@ def register_handlers(dp: Dispatcher):
             text = "Main dates list is currently unavailable."
         back_btn = types.InlineKeyboardButton(text="Back", callback_data="back_main")
         back_kb = types.InlineKeyboardMarkup(inline_keyboard=[[back_btn]])
-        await callback.message.answer(text, reply_markup=back_kb)
+        await send_message_with_deletion(user.id, text, reply_markup=back_kb)
         await callback.answer()
 
     dp.callback_query.register(process_main_dates, lambda c: c.data == "command_6")
@@ -99,7 +114,7 @@ def register_handlers(dp: Dispatcher):
             text = "Sources list is currently unavailable."
         back_btn = types.InlineKeyboardButton(text="Back", callback_data="back_main")
         back_kb = types.InlineKeyboardMarkup(inline_keyboard=[[back_btn]])
-        await callback.message.answer(text, reply_markup=back_kb)
+        await send_message_with_deletion(user.id, text, reply_markup=back_kb)
         await callback.answer()
 
     dp.callback_query.register(process_sources, lambda c: c.data == "command_7")
@@ -108,7 +123,7 @@ def register_handlers(dp: Dispatcher):
     async def process_back_main(callback: types.CallbackQuery):
         user = callback.from_user
         logging.info(f"User {user.id} ({user.full_name}) returned to main menu.")
-        await callback.message.answer("Main Menu:", reply_markup=get_main_keyboard())
+        await send_message_with_deletion(user.id, "Main Menu:", reply_markup=get_main_keyboard())
         await callback.answer()
 
     dp.callback_query.register(process_back_main, lambda c: c.data == "back_main")
@@ -124,7 +139,7 @@ def register_handlers(dp: Dispatcher):
         year = int(year_str)
         logging.info(f"User {user.id} ({user.full_name}) went back to month selection for year {year}.")
         months_keyboard = get_months_keyboard(year)
-        await callback.message.answer(f"Select month for {year}:", reply_markup=months_keyboard)
+        await send_message_with_deletion(user.id, f"Select month for {year}:", reply_markup=months_keyboard)
         await callback.answer()
 
     dp.callback_query.register(
@@ -136,6 +151,6 @@ def register_handlers(dp: Dispatcher):
     async def echo_unknown(message: types.Message):
         user = message.from_user
         logging.info(f"User {user.id} ({user.full_name}) sent unknown message: {message.text}")
-        await message.answer("Please use the buttons below to navigate.", reply_markup=get_main_keyboard())
+        await send_message_with_deletion(user.id, "Please use the buttons below to navigate.", reply_markup=get_main_keyboard())
 
     dp.message.register(echo_unknown)
