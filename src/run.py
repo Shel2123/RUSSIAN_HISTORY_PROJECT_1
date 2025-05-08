@@ -1,12 +1,11 @@
+"""
+Entrypoint for the Telegram war bot.
+"""
 import asyncio
 import logging
-from os import getenv
-from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher
-from handlers import register_handlers
-
-load_dotenv()
-API_TOKEN = getenv("BOT_TOKEN")
+from russian_history_project_1.config import BOT_TOKEN
+from russian_history_project_1.handlers import register_handlers
 
 logging.basicConfig(
     level=logging.INFO,
@@ -17,18 +16,13 @@ logging.basicConfig(
     ]
 )
 
-bot = Bot(token=API_TOKEN)
+bot = Bot(BOT_TOKEN)
 dp = Dispatcher()
+register_handlers(dp)
 
-# Регистрация обработчиков
-register_handlers(dp, bot)
-
-async def main():
-    logging.info("Bot is starting...")
-    try:
-        await dp.start_polling(bot, skip_updates=True)
-    finally:
-        await bot.session.close()
+async def main() -> None:
+    logging.info("Bot is starting…")
+    await dp.start_polling(bot, skip_updates=True)
 
 if __name__ == "__main__":
     asyncio.run(main())
