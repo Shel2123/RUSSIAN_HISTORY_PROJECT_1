@@ -1,0 +1,6 @@
+src/russian_history_project_1/.env
+
+__pycache__
+*.py[cod]
+.idea
+.vscode

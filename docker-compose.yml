@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    env_file:
+      - ./src/russian_history_project_1/.env
+    environment:
+      - PYTHONPATH=/app
+    command: python src/run.py
