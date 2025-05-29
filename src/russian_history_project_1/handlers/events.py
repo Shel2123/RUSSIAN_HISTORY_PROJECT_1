@@ -20,10 +20,10 @@ def register(dp: Dispatcher) -> None:
 
         events = get_events(year, month)
         if events:
-            header = f"Events for {_MONTH_NAMES[month - 1]} {year}:\n"
+            header = f"{_MONTH_NAMES[month - 1]} {year}:\n"
             lines = [
-                f"{day:02d} {_MONTH_NAMES[month - 1]} {year} — {desc}"
-                for day, desc in events
+                f"{desc}"
+                for _, desc in events
             ]
             text = header + "\n".join(lines)
         else:
