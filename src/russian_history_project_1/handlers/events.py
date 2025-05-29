@@ -47,10 +47,14 @@ def register(dp: Dispatcher) -> None:
         await callback.answer()
 
     async def sources(callback: types.CallbackQuery) -> None:
-        src = get_sources()
         text = (
-            "Sources:\n" + "\n".join(f"{idx + 1}. {s}" for idx, s in enumerate(src))
-            if src else "Sources list is empty."
+            "Sources:\n"
+            "1. Stahel, D. (2009). Operation Barbarossa and Germany's defeat in the East. Cambridge University Press.\n"
+            "2. Overy, R. J. (1998). Russia's War: A History of the Soviet Effort: 1941-1945. Penguin UK.\n"
+            "3. Erickson, J. (2019). The Road to Stalingrad: Stalin's War with Germany. Routledge.\n"
+            "4. Erickson, J. (1984). Threat identification and strategic appraisal by the Soviet Union, 1930-1941. Knowing One’s Enemies: Intelligence Assessment before the Two World Wars, 375-423.\n"
+            "5. Glantz, D. M., & House, J. M. (2015). When titans clashed: how the Red Army stopped Hitler. University Press of Kansas.\n"
+            "6. Druzhinina, A. (2020). Огонь войны: 1418 дней. thefireofthewar.ru"
         )
         back_btn = types.InlineKeyboardButton(text="Back", callback_data="back:main")
         markup = types.InlineKeyboardMarkup(inline_keyboard=[[back_btn]])
